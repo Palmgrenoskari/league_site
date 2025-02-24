@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "LoL Analytics",
-  description: "League of Legends Analytics Page",
+  description: "League of Legends Analytics Dashboard",
 };
 
 export default function RootLayout({
@@ -22,13 +22,11 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-screen bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 flex flex-col`}
       >
+        <Nav />
         <div className="flex-1 bg-gradient-radial from-blue-500/5 via-blue-500/5 to-transparent">
-          <Nav />
-          <main className="container mx-auto p-4 min-h-[calc(100vh-16rem)]">
-            {children}
-          </main>
-          <Footer />
+          <main className="container mx-auto p-4 flex-grow">{children}</main>
         </div>
+        <Footer />
       </body>
     </html>
   );
