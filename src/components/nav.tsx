@@ -10,12 +10,12 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
-        <div className="flex items-center space-x-3">
+        <Link href="/" className="flex items-center space-x-3">
           <Sword className="h-7 w-7 text-blue-400" />
           <span className="hidden font-bold text-lg sm:inline-block text-blue-100">
             LoL Analytics
           </span>
-        </div>
+        </Link>
         <nav className="flex items-center space-x-2">
           <Link
             href="/"
