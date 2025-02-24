@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { MatchHistory } from "@/components/match-history";
+import { PlayerStats } from "@/components/player-stats";
 
 async function getPlayerData(region: string, name: string, tag: string) {
   const apiKey = process.env.RIOT_API_KEY;
@@ -61,11 +63,50 @@ async function getPlayerData(region: string, name: string, tag: string) {
     const rankedData = await rankedResponse.json();
     console.log("Ranked Data:", JSON.stringify(rankedData, null, 2));
 
+    // Get match history
+    const matchesResponse = await fetch(
+      `https://${getRegionRoute(
+        region
+      )}.api.riotgames.com/lol/match/v5/matches/by-puuid/${
+        accountData.puuid
+      }/ids?start=0&count=20`,
+      {
+        headers: {
+          "X-Riot-Token": apiKey,
+        },
+      }
+    );
+
+    if (!matchesResponse.ok) {
+      throw new Error("Failed to fetch match history");
+    }
+
+    const matchIds = await matchesResponse.json();
+
+    // Fetch details for each match
+    const matchDetails = await Promise.all(
+      matchIds.map(async (matchId: string) => {
+        const matchResponse = await fetch(
+          `https://${getRegionRoute(
+            region
+          )}.api.riotgames.com/lol/match/v5/matches/${matchId}`,
+          {
+            headers: {
+              "X-Riot-Token": apiKey,
+            },
+          }
+        );
+        if (!matchResponse.ok) return null;
+        return matchResponse.json();
+      })
+    );
+
     return {
       summoner: summonerData,
       ranked: rankedData,
       region: region.toUpperCase(),
       tagLine: tag,
+      matches: matchDetails.filter(Boolean), // Remove any null values from failed requests
     };
   } catch (error) {
     console.error("Error fetching player data:", error);
@@ -78,6 +119,17 @@ function getRegionApiUrl(region: string): string {
     na: "https://na1.api.riotgames.com",
     euw: "https://euw1.api.riotgames.com",
     eun: "https://eun1.api.riotgames.com",
+    // Add more regions as needed
+  };
+
+  return regionMapping[region.toLowerCase()] || regionMapping["na"];
+}
+
+function getRegionRoute(region: string): string {
+  const regionMapping: Record<string, string> = {
+    na: "americas",
+    euw: "europe",
+    eun: "europe",
     // Add more regions as needed
   };
 
@@ -104,7 +156,7 @@ export default async function PlayerProfile({
   );
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         {/* Profile Overview */}
         <div className="rounded-lg border border-white/10 bg-slate-900/60 p-6">
@@ -150,7 +202,7 @@ export default async function PlayerProfile({
               {" "}
               {/* Added wrapper with fixed height for both states */}
               {soloQueue ? (
-                <div className="flex flex-row-reverse h-full">
+                <div className="flex h-full flex-row-reverse">
                   <div className="flex w-1/2 items-center justify-center">
                     <Image
                       src={`/rank_images/${soloQueue.tier}.png`}
@@ -199,7 +251,7 @@ export default async function PlayerProfile({
               {" "}
               {/* Added wrapper with fixed height for both states */}
               {flexQueue ? (
-                <div className="flex flex-row-reverse h-full">
+                <div className="flex h-full flex-row-reverse">
                   <div className="flex w-1/2 items-center justify-center">
                     <Image
                       src={`/rank_images/${flexQueue.tier}.png`}
@@ -240,6 +292,23 @@ export default async function PlayerProfile({
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Match History Section */}
+      <div className="grid grid-cols-5 gap-6">
+        {/* Left Sidebar - Champion Stats */}
+        <div className="col-span-1">
+          <PlayerStats />
+        </div>
+
+        {/* Main Content - Match History */}
+        <div className="col-span-4">
+          <MatchHistory
+            matches={data.matches}
+            summonerPuuid={data.summoner.puuid}
+            region={region}
+          />
         </div>
       </div>
     </div>
