@@ -142,6 +142,7 @@ export default async function Leaderboards({
                 (player.wins / (player.wins + player.losses)) *
                 100
               ).toFixed(1);
+              //TODO: Replace with player.rank once db is updated
               const globalRank = (currentPage - 1) * 200 + index + 1;
 
               return (
@@ -161,7 +162,8 @@ export default async function Leaderboards({
                   </td>
                   <td className="p-4">
                     <span className="font-medium text-slate-100">
-                      {player.league}
+                      {player.league.charAt(0).toUpperCase() +
+                        player.league.slice(1)}
                     </span>
                   </td>
                   <td className="p-4 font-medium text-slate-100">
