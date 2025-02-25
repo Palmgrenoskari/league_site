@@ -145,7 +145,8 @@ export default async function PlayerProfile({
     tag: string;
   };
 }) {
-  const { region, name, tag } = await Promise.resolve(params);
+  const { region, name: encodedName, tag } = await Promise.resolve(params);
+  const name = decodeURIComponent(encodedName);
   const data = await getPlayerData(region, name, tag);
 
   const soloQueue = data.ranked.find(
