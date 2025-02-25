@@ -1,5 +1,5 @@
 # league_site
-About to start building a League of legends analytics site
+Building a League of Legends Analytics App. Name is still unknown, really depends on domain prices ^^
 
 Trying to get a Dev API key soon. Current rate limit of 100 requests every 2 minutes is a bottleneck for further development.
 
