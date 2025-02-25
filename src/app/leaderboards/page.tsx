@@ -57,38 +57,65 @@ async function getLeaderboards(
 export default async function Leaderboards({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: { page?: string; queue?: string };
 }) {
   const currentPage = Number(searchParams.page) || 1;
+  const queue = searchParams.queue || "solo";
   const { players, total } = await getLeaderboards(currentPage);
   const totalPages = Math.ceil(total / 200);
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-blue-100">Leaderboards</h1>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-slate-400">
-            Showing {(currentPage - 1) * 200 + 1}-
-            {Math.min(currentPage * 200, total)} of {total} players
-          </span>
-          <div className="flex gap-2">
-            {currentPage > 1 && (
-              <Link
-                href={`/leaderboards?page=${currentPage - 1}`}
-                className="rounded border border-white/10 bg-slate-900/60 px-3 py-1 hover:bg-slate-900"
-              >
-                Previous
-              </Link>
-            )}
-            {currentPage < totalPages && (
-              <Link
-                href={`/leaderboards?page=${currentPage + 1}`}
-                className="rounded border border-white/10 bg-slate-900/60 px-3 py-1 hover:bg-slate-900"
-              >
-                Next
-              </Link>
-            )}
+      <div className="mb-6 flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-blue-100">Leaderboards</h1>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-slate-400">
+              Showing {(currentPage - 1) * 200 + 1}-
+              {Math.min(currentPage * 200, total)} of {total} players
+            </span>
+            <div className="flex gap-2">
+              {currentPage > 1 && (
+                <Link
+                  href={`/leaderboards?queue=${queue}&page=${currentPage - 1}`}
+                  className="rounded border border-white/10 bg-slate-900/60 px-3 py-1 hover:bg-slate-900"
+                >
+                  Previous
+                </Link>
+              )}
+              {currentPage < totalPages && (
+                <Link
+                  href={`/leaderboards?queue=${queue}&page=${currentPage + 1}`}
+                  className="rounded border border-white/10 bg-slate-900/60 px-3 py-1 hover:bg-slate-900"
+                >
+                  Next
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-1 border-b border-white/10">
+          <Link
+            href={`/leaderboards?queue=solo&page=1`}
+            className={`px-4 py-2 text-sm font-medium transition-colors hover:text-blue-400 ${
+              queue === "solo"
+                ? "border-b-2 border-blue-400 text-blue-400"
+                : "text-slate-400"
+            }`}
+          >
+            Ranked Solo/Duo
+          </Link>
+          <div className="group relative">
+            <button
+              className="cursor-not-allowed px-4 py-2 text-sm font-medium text-slate-600"
+              disabled
+            >
+              Ranked Flex
+            </button>
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-8 rounded bg-slate-900/90 px-2 py-1 text-xs text-slate-400 opacity-0 transition-opacity group-hover:opacity-100">
+              Coming soon
+            </div>
           </div>
         </div>
       </div>
@@ -159,7 +186,7 @@ export default async function Leaderboards({
         <div className="flex gap-2">
           {currentPage > 1 && (
             <Link
-              href={`/leaderboards?page=${currentPage - 1}`}
+              href={`/leaderboards?queue=${queue}&page=${currentPage - 1}`}
               className="rounded border border-white/10 bg-slate-900/60 px-3 py-1 text-sm hover:bg-slate-900"
             >
               Previous
@@ -167,7 +194,7 @@ export default async function Leaderboards({
           )}
           {currentPage < totalPages && (
             <Link
-              href={`/leaderboards?page=${currentPage + 1}`}
+              href={`/leaderboards?queue=${queue}&page=${currentPage + 1}`}
               className="rounded border border-white/10 bg-slate-900/60 px-3 py-1 text-sm hover:bg-slate-900"
             >
               Next
