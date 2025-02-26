@@ -4,7 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ItemTooltip } from "./item-tooltip";
+import { getItemData } from "@/lib/items";
 
 interface MatchHistoryProps {
   matches: any[];
@@ -24,6 +26,17 @@ export function MatchHistory({
 }: MatchHistoryProps) {
   const [expandedMatches, setExpandedMatches] = useState<string[]>([]);
   const [expandedPlayers, setExpandedPlayers] = useState<string[]>([]);
+  const [itemData, setItemData] = useState<any>(null);
+
+  useEffect(() => {
+    // Fetch item data when component mounts
+    const fetchItemData = async () => {
+      const data = await getItemData();
+      setItemData(data);
+    };
+
+    fetchItemData();
+  }, []);
 
   const toggleMatch = (matchId: string) => {
     setExpandedMatches((current) =>
@@ -153,6 +166,7 @@ export function MatchHistory({
                             isExpanded={expandedPlayers.includes(player.puuid)}
                             onToggle={() => togglePlayer(player.puuid)}
                             match={match}
+                            itemData={itemData}
                           />
                         ))}
                       </div>
@@ -170,6 +184,7 @@ export function MatchHistory({
                             isExpanded={expandedPlayers.includes(player.puuid)}
                             onToggle={() => togglePlayer(player.puuid)}
                             match={match}
+                            itemData={itemData}
                           />
                         ))}
                       </div>
@@ -191,6 +206,7 @@ interface PlayerRowProps {
   isExpanded: boolean;
   onToggle: () => void;
   match: any;
+  itemData: any;
 }
 
 function PlayerRow({
@@ -199,6 +215,7 @@ function PlayerRow({
   isExpanded,
   onToggle,
   match,
+  itemData,
 }: PlayerRowProps) {
   return (
     <div className="relative">
@@ -301,30 +318,34 @@ function PlayerRow({
               {Array.from({ length: 6 }).map((_, i) => {
                 const itemId = player[`item${i}`];
                 return itemId ? (
-                  <div key={i} className="relative h-8 w-8 group">
-                    <Image
-                      src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/item/${itemId}.png`}
-                      alt={`Item ${i + 1}`}
-                      className="rounded"
-                      fill
-                      sizes="32px"
-                    />
-                  </div>
+                  <ItemTooltip key={i} itemId={itemId} itemData={itemData}>
+                    <div className="relative h-8 w-8">
+                      <Image
+                        src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/item/${itemId}.png`}
+                        alt={`Item ${i + 1}`}
+                        className="rounded"
+                        fill
+                        sizes="32px"
+                      />
+                    </div>
+                  </ItemTooltip>
                 ) : (
                   <div key={i} className="h-8 w-8 rounded bg-slate-800" />
                 );
               })}
               {/* Ward Item */}
               {player.item6 ? (
-                <div className="relative h-8 w-8 group">
-                  <Image
-                    src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/item/${player.item6}.png`}
-                    alt="Ward Item"
-                    className="rounded border border-yellow-500/30"
-                    fill
-                    sizes="32px"
-                  />
-                </div>
+                <ItemTooltip itemId={player.item6} itemData={itemData}>
+                  <div className="relative h-8 w-8">
+                    <Image
+                      src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/item/${player.item6}.png`}
+                      alt="Ward Item"
+                      className="rounded border border-yellow-500/30"
+                      fill
+                      sizes="32px"
+                    />
+                  </div>
+                </ItemTooltip>
               ) : (
                 <div className="h-8 w-8 rounded bg-slate-800 border border-yellow-500/30" />
               )}
