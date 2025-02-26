@@ -7,6 +7,7 @@ import { ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ItemTooltip } from "./item-tooltip";
 import { getItemData } from "@/lib/items";
+import { DDRAGON_BASE_URL } from "@/lib/constants";
 
 interface MatchHistoryProps {
   matches: any[];
@@ -96,9 +97,7 @@ export function MatchHistory({
                   <div className="flex-shrink-0">
                     <div className="relative h-16 w-16">
                       <Image
-                        src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/champion/${fixChampionName(
-                          participant.championName
-                        )}.png`}
+                        src={`${DDRAGON_BASE_URL}/img/champion/${participant.championName}.png`}
                         alt={participant.championName}
                         className="rounded-lg"
                         fill
@@ -222,9 +221,7 @@ function PlayerRow({
       <div className="flex items-center gap-2 rounded bg-slate-900/40 p-2">
         <div className="relative h-8 w-8">
           <Image
-            src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/champion/${fixChampionName(
-              player.championName
-            )}.png`}
+            src={`${DDRAGON_BASE_URL}/img/champion/${player.championName}.png`}
             alt={player.championName}
             className="rounded"
             fill
@@ -321,7 +318,7 @@ function PlayerRow({
                   <ItemTooltip key={i} itemId={itemId} itemData={itemData}>
                     <div className="relative h-8 w-8">
                       <Image
-                        src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/item/${itemId}.png`}
+                        src={`${DDRAGON_BASE_URL}/img/item/${itemId}.png`}
                         alt={`Item ${i + 1}`}
                         className="rounded"
                         fill
@@ -338,7 +335,7 @@ function PlayerRow({
                 <ItemTooltip itemId={player.item6} itemData={itemData}>
                   <div className="relative h-8 w-8">
                     <Image
-                      src={`https://ddragon.leagueoflegends.com/cdn/15.4.1/img/item/${player.item6}.png`}
+                      src={`${DDRAGON_BASE_URL}/img/item/${player.item6}.png`}
                       alt="Ward Item"
                       className="rounded border border-yellow-500/30"
                       fill

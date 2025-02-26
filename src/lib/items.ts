@@ -1,3 +1,5 @@
+import { DDRAGON_BASE_URL } from "./constants";
+
 // Cache for item data
 let itemDataCache: any = null;
 
@@ -7,9 +9,7 @@ export async function getItemData() {
   }
 
   try {
-    const response = await fetch(
-      "https://ddragon.leagueoflegends.com/cdn/15.4.1/data/en_US/item.json"
-    );
+    const response = await fetch(`${DDRAGON_BASE_URL}/data/en_US/item.json`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch item data");

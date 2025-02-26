@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { MatchHistory } from "@/components/match-history";
 import { PlayerStats } from "@/components/player-stats";
+import { DDRAGON_BASE_URL } from "@/lib/constants";
 
 async function getPlayerData(region: string, name: string, tag: string) {
   const apiKey = process.env.RIOT_API_KEY;
@@ -164,7 +165,7 @@ export default async function PlayerProfile({
           <div className="flex items-center gap-4">
             <div className="relative h-32 w-32">
               <Image
-                src={`https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/${data.summoner.profileIconId}.png`}
+                src={`${DDRAGON_BASE_URL}/img/profileicon/${data.summoner.profileIconId}.png`}
                 alt="Profile Icon"
                 className="rounded-lg"
                 width={128}
