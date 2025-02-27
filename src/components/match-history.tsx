@@ -84,9 +84,11 @@ export function MatchHistory({
             <div
               key={match.metadata.matchId}
               className={`rounded-lg border ${
-                win
-                  ? "border-green-500/20 bg-green-500/5"
-                  : "border-red-500/20 bg-red-500/5"
+                match.info.gameDuration < 300
+                  ? "border-blue-500/20 bg-blue-500/5" // Remake styling
+                  : win
+                  ? "border-green-500/20 bg-green-500/5" // Victory styling
+                  : "border-red-500/20 bg-red-500/5" // Defeat styling
               }`}
             >
               <button
@@ -97,7 +99,9 @@ export function MatchHistory({
                   <div className="flex-shrink-0">
                     <div className="relative h-16 w-16">
                       <Image
-                        src={`${DDRAGON_BASE_URL}/img/champion/${participant.championName}.png`}
+                        src={`${DDRAGON_BASE_URL}/img/champion/${fixChampionName(
+                          participant.championName
+                        )}.png`}
                         alt={participant.championName}
                         className="rounded-lg"
                         fill
@@ -105,42 +109,107 @@ export function MatchHistory({
                       />
                     </div>
                   </div>
-                  <div className="flex flex-1 items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-lg font-bold ${
-                            win ? "text-green-400" : "text-red-400"
-                          }`}
-                        >
-                          {win ? "Victory" : "Defeat"}
-                        </span>
-                        <span className="text-sm text-slate-400">
-                          {gameType === "CLASSIC" ? "RANKED" : gameType}
-                        </span>
-                      </div>
-                      <div className="text-sm text-slate-400">{duration}m</div>
-                      <div className="text-sm text-slate-400">{timeAgo}</div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-lg font-bold ${
+                          match.info.gameDuration < 300
+                            ? "text-blue-400" // Remake text color
+                            : win
+                            ? "text-green-400" // Victory text color
+                            : "text-red-400" // Defeat text color
+                        }`}
+                      >
+                        {match.info.gameDuration < 300
+                          ? "Remake"
+                          : win
+                          ? "Victory"
+                          : "Defeat"}
+                      </span>
+                      <span className="text-sm text-slate-400">{gameType}</span>
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold">
-                        {participant.kills}/{participant.deaths}/
-                        {participant.assists}
-                      </div>
-                      <div className="text-sm text-slate-400">
-                        {(
-                          (participant.kills + participant.assists) /
-                          Math.max(1, participant.deaths)
-                        ).toFixed(2)}{" "}
-                        KDA
-                      </div>
-                    </div>
-                    <ChevronDown
-                      className={`ml-4 h-5 w-5 text-slate-400 transition-transform duration-200 ${
-                        isExpanded ? "rotate-180" : ""
-                      }`}
-                    />
+                    <div className="text-sm text-slate-400">{duration}m</div>
+                    <div className="text-sm text-slate-400">{timeAgo}</div>
                   </div>
+
+                  {/* Items list */}
+                  <div className="flex flex-1 items-center gap-2 ml-4">
+                    <div className="flex flex-wrap gap-1">
+                      {Array.from({ length: 6 }).map((_, i) => {
+                        const itemId = participant[`item${i}`];
+                        return itemId ? (
+                          <ItemTooltip
+                            key={i}
+                            itemId={itemId}
+                            itemData={itemData}
+                          >
+                            <div className="relative h-8 w-8">
+                              <Image
+                                src={`${DDRAGON_BASE_URL}/img/item/${itemId}.png`}
+                                alt={`Item ${i + 1}`}
+                                className="rounded"
+                                fill
+                                sizes="32px"
+                              />
+                            </div>
+                          </ItemTooltip>
+                        ) : (
+                          <div
+                            key={i}
+                            className="h-8 w-8 rounded bg-slate-800"
+                          />
+                        );
+                      })}
+                      {/* Ward Item */}
+                      {participant.item6 ? (
+                        <ItemTooltip
+                          itemId={participant.item6}
+                          itemData={itemData}
+                        >
+                          <div className="relative h-8 w-8">
+                            <Image
+                              src={`${DDRAGON_BASE_URL}/img/item/${participant.item6}.png`}
+                              alt="Ward Item"
+                              className="rounded border border-yellow-500/30"
+                              fill
+                              sizes="32px"
+                            />
+                          </div>
+                        </ItemTooltip>
+                      ) : (
+                        <div className="h-8 w-8 rounded bg-slate-800 border border-yellow-500/30" />
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      <div>
+                        {participant.totalMinionsKilled +
+                          participant.neutralMinionsKilled}{" "}
+                        CS
+                      </div>
+                      <div>
+                        {Math.round(participant.goldEarned / 1000)}k Gold
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-lg font-bold">
+                      {participant.kills}/{participant.deaths}/
+                      {participant.assists}
+                    </div>
+                    <div className="text-sm text-slate-400">
+                      {(
+                        (participant.kills + participant.assists) /
+                        Math.max(1, participant.deaths)
+                      ).toFixed(2)}{" "}
+                      KDA
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`ml-4 h-5 w-5 text-slate-400 transition-transform duration-200 ${
+                      isExpanded ? "rotate-180" : ""
+                    }`}
+                  />
                 </div>
               </button>
 
@@ -155,7 +224,12 @@ export function MatchHistory({
                       {/* Blue Team */}
                       <div className="space-y-2">
                         <h3 className="font-semibold text-blue-300">
-                          Blue Team {blueTeam[0].win ? "(Victory)" : "(Defeat)"}
+                          Blue Team{" "}
+                          {match.info.gameDuration < 300
+                            ? "(Remake)"
+                            : blueTeam[0].win
+                            ? "(Victory)"
+                            : "(Defeat)"}
                         </h3>
                         {blueTeam.map((player: any) => (
                           <PlayerRow
@@ -173,7 +247,12 @@ export function MatchHistory({
                       {/* Red Team */}
                       <div className="space-y-2">
                         <h3 className="font-semibold text-red-300">
-                          Red Team {redTeam[0].win ? "(Victory)" : "(Defeat)"}
+                          Red Team{" "}
+                          {match.info.gameDuration < 300
+                            ? "(Remake)"
+                            : redTeam[0].win
+                            ? "(Victory)"
+                            : "(Defeat)"}
                         </h3>
                         {redTeam.map((player: any) => (
                           <PlayerRow
@@ -230,7 +309,9 @@ function PlayerRow({
         </div>
         <div className="min-w-0 flex-1">
           <Link
-            href={`/player/${region}/${player.riotIdGameName}/${player.riotIdTagline}`}
+            href={`/player/${region}/${encodeURIComponent(
+              player.riotIdGameName
+            )}/${player.riotIdTagline}`}
             className="block truncate font-medium hover:text-blue-400"
           >
             {player.riotIdGameName}
