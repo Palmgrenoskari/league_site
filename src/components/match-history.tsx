@@ -20,6 +20,12 @@ function fixChampionName(name: string) {
   return name === "FiddleSticks" ? "Fiddlesticks" : name;
 }
 
+// Just changes "CLASSIC" to "Ranked" for now
+function getDisplayGameMode(gameMode: string) {
+  if (gameMode === "CLASSIC") return "Ranked";
+  return gameMode;
+}
+
 export function MatchHistory({
   matches,
   summonerPuuid,
@@ -64,7 +70,7 @@ export function MatchHistory({
             (p: any) => p.puuid === summonerPuuid
           );
           const win = participant.win;
-          const gameType = match.info.gameMode;
+          const gameType = getDisplayGameMode(match.info.gameMode);
           const duration = Math.floor(match.info.gameDuration / 60);
           const timeAgo = formatDistanceToNow(
             new Date(match.info.gameStartTimestamp),
